@@ -82,7 +82,7 @@ def add_book():
     save_to_file()
     clear_add_book_form()
 
-    add_book_message_label.config(text="Book added successfully!", font=("Arial", 14), fg="green")
+    add_book_message_label.config(text="You can add another book or return to menu.", font=("Arial", 14), fg="green")
 
     
 def search_books():
