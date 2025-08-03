@@ -54,7 +54,7 @@ def save_to_file():
 
 
 def add_book():
-    print("adding book")
+    pass # Teraz tutaj pisz kod :) 
 
 def search_books():
     print("Searching for books")
@@ -86,8 +86,7 @@ def build_menu_frame():
 
 
 def build_add_book_frame():
-    message_label.config(text="Fill all fields to add a book to your library", font=("Arial", 14), background="lightyellow", fg="black")
-    message_label.pack(pady=10)
+    Label(add_book_frame, text="Fill in all fields to add book to your library", font=("Arial", 16), background="lightblue").pack(pady=10)
 
     global entry_author, entry_title, entry_year
 
@@ -100,7 +99,7 @@ def build_add_book_frame():
     entry_title.pack(pady=5)
 
     Label(add_book_frame, text="Year of release", font=("Arial", 14)).pack(pady=10)
-    entry_year = Entry(add_book_frame, font("Arial", 14))
+    entry_year = Entry(add_book_frame, font=("Arial", 14))
     entry_year.pack(pady=5)
 
     add_book_button = Button(add_book_frame, text="Add book to library", command=add_book, font=("Arial", 14))
