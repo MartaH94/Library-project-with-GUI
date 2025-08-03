@@ -30,6 +30,8 @@ def show_frame(frame_to_show):
     frame_to_show.pack(pady=20)
     message_label.pack(pady=10)
 
+def clear_message():
+    message_label.config(text="")
 
 
 
@@ -50,6 +52,7 @@ def save_to_file():
     message_label.config(text="Changes saved successfully!", background="lightgreen", fg="black")
 
 
+
 def add_book():
     print("adding book")
 
@@ -63,24 +66,94 @@ def delete_book():
     print("Delete a book")
 
 
+
+
 def build_menu_frame():
-    print("Building menu frame")
+    message_label.config(text="Welcome to your virtual library!", font=("Arial", 16), background="lightblue", fg="black")
+    message_label.pack(pady=10)
+
+    add_book_button = Button(menu_frame, text="Add new book", command=lambda: show_frame(add_book_frame), font=("Arial", 14))
+    search_book_button = Button(menu_frame, text="Search for a book", command=lambda: show_frame(search_for_book_frame), font=("Arial", 14))
+    display_library_button = Button(menu_frame, text="Display full library", command=lambda: show_frame(display_library_frame), font=("Arial", 14))
+    delete_book_button = Button(menu_frame, text="Delete a book", command=lambda: show_frame(delete_book_frame), font=("Arial", 14))
+    exit_button = Button(menu_frame, text="Exit library", command=root.quit, font=("Arial", 14))
+
+    add_book_button.pack(pady=10)
+    search_book_button.pack(pady=10)
+    display_library_button.pack(pady=10)
+    delete_book_button.pack(pady=10)
+    exit_button.pack(pady=10)
+
 
 def build_add_book_frame():
-    print("Building add book frame")
+    message_label.config(text="Fill all fields to add a book to your library", font=("Arial", 14), background="lightyellow", fg="black")
+    message_label.pack(pady=10)
+
+    global entry_author, entry_title, entry_year
+
+    Label(add_book_frame, text="Author", font=("Arial", 14)).pack(pady=10)
+    entry_author = Entry(add_book_frame, font=("Arial", 14))
+    entry_author.pack(pady=5)
+
+    Label(add_book_frame, text="Title", font=("Arial", 14)).pack(pady=10)
+    entry_title = Entry(add_book_frame, font=("Arial", 14))
+    entry_title.pack(pady=5)
+
+    Label(add_book_frame, text="Year of release", font=("Arial", 14)).pack(pady=10)
+    entry_year = Entry(add_book_frame, font("Arial", 14))
+    entry_year.pack(pady=5)
+
+    add_book_button = Button(add_book_frame, text="Add book to library", command=add_book, font=("Arial", 14))
+    add_book_button.pack(pady=10)
+    
+    Button(add_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
+
+    clear_add_book_form()
 
 def build_search_frame():
-    print("Building search frame")
+    Button(search_for_book_frame, text="Search for book", command=search_books, font=("Arial", 14))
+    clear_search_form()
+    menu_button = Button(search_for_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14))
+
 
 def build_display_library_frame():
-    print("Building display library frame")
+    menu_button = Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14))
+
 
 def build_delete_frame():
-    print("Building delete frame")
+    Button(delete_book_frame, text="Delete book", command=delete_book, font=("Arial", 14))
+    clear_delete_form()
+    menu_button = Button(delete_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14))
+
+
+
+
+def get_add_book_form_data():
+    pass
+
+def clear_add_book_form():
+    entry_author.delete(0,END)
+    entry_title.delete(0, END)
+    entry_year.delete(0,END)
+
+
+def clear_search_form():
+    pass
+
+def get_book_to_delete():
+    pass
+
+def clear_delete_form():
+    pass
+
+
 
 
 build_menu_frame()
 build_add_book_frame()
+build_search_frame()
+build_display_library_frame()
+build_delete_frame()
 show_frame(menu_frame)
 
 root.mainloop()
