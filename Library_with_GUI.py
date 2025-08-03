@@ -49,13 +49,42 @@ library = read_library_from_file()
 def save_to_file():
     with open("user_library.json", "w") as file:
         json.dump(library, file)
-    message_label.config(text="Changes saved successfully!", background="lightgreen", fg="black")
+    confirm_label = Label(root, text="Changes saved successfully!", font=("Arial", 12), background="lightgreen", fg="black")
+    confirm_label.pack(pady=10)
+    root.after(2000, confirm_label.destroy)  # Remove the confirmation message after
+    
+
 
 
 
 def add_book():
-    pass # Teraz tutaj pisz kod :) 
+    add_book_message_label.config(text="", fg="black")
 
+    author = entry_author.get().strip()
+    title = entry_title.get().strip()
+    year = entry_year.get().strip()
+
+    if not author or not title or not year:
+        add_book_message_label.config(text="All fields are required!", font=("Arial", 14), fg="red")
+        return
+    
+    if not year.isdigit() or len(year) != 4:
+        add_book_message_label.config(text="Year of release must be a 4-digit number. Try again", font=("Arial", 14), fg="red")
+        return
+    
+    new_book = {
+        "author" : author,
+        "title" : title,
+        "year" : year
+    }
+
+    library.append(new_book)
+    save_to_file()
+    clear_add_book_form()
+
+    add_book_message_label.config(text="Book added successfully!", font=("Arial", 14), fg="green")
+
+    
 def search_books():
     print("Searching for books")
 
@@ -86,8 +115,7 @@ def build_menu_frame():
 
 
 def build_add_book_frame():
-    Label(add_book_frame, text="Fill in all fields to add book to your library", font=("Arial", 16), background="lightblue").pack(pady=10)
-
+    global add_book_message_label
     global entry_author, entry_title, entry_year
 
     Label(add_book_frame, text="Author", font=("Arial", 14)).pack(pady=10)
@@ -105,9 +133,13 @@ def build_add_book_frame():
     add_book_button = Button(add_book_frame, text="Add book to library", command=add_book, font=("Arial", 14))
     add_book_button.pack(pady=10)
     
+    add_book_message_label = Label(add_book_frame, text="Please fill in all fields to add a book to your library", font=("Arial", 16), background="lightblue")
+    add_book_message_label.pack(pady=10)
+
     Button(add_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
 
     clear_add_book_form()
+
 
 def build_search_frame():
     Button(search_for_book_frame, text="Search for book", command=search_books, font=("Arial", 14))
@@ -127,8 +159,7 @@ def build_delete_frame():
 
 
 
-def get_add_book_form_data():
-    pass
+
 
 def clear_add_book_form():
     entry_author.delete(0,END)
