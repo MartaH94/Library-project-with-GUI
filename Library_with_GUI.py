@@ -104,8 +104,7 @@ def search_books(): # do poprawienia wyświetlanie, docelowo uniweralny frame do
     if not search_matches:
         search_book_label.config(text="No books found matching your search.", fg="red")
     else:
-        for book in search_matches:
-            result_text += f"Author: {book['author']}, Title: {book['title']}, Year: {book['year']}\n"
+        display_books_in_frame(search_for_book_frame, search_matches)
 
         search_book_label.config(text=result_text.strip(), fg="black")
 
@@ -201,6 +200,35 @@ def build_delete_frame():
 
 
 
+
+def display_books_in_frame(frame, books): #wygląda lepiej niż gorzej ale jest nierówno
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    if not books:
+        Label(frame, text="No books to display", font=("Arial", 14), bg="orange").pack(pady=20)
+        return
+    
+    header_frame = Frame(frame, bg="lightblue")
+    header_frame.pack(fill=X, pady= (0, 5))
+
+    Label(header_frame, text="AUTHOR", font=("Arial", 14, "bold"), bg="blue",fg="white", width=25, anchor="w").grid(row=0, column=0, padx=5, pady=5)
+    Label(header_frame, text="TITLE", font=("Arial", 14, "bold"), bg="blue", fg="white", width=25, anchor="w").grid(row=0, column=1, padx=5, pady=5)
+    Label(header_frame, text="YEAR", font=("Arial", 14, "bold"), bg="blue", fg="white", width=10, anchor="w").grid(row=0, column=2, padx=5, pady=5)
+
+    for i, book in enumerate(books, start = 1):
+        row_frame = Frame(frame, bg="lightblue")
+        row_frame.pack(fill=X, pady=5)
+
+        Label(row_frame, text=book['author'], font=("Arial", 12), bg="lightblue", width=25, anchor="w").grid(row=i, column=0, padx=5, pady=5)
+        Label(row_frame, text=book['title'], font=("Arial", 12), bg="lightblue", width=25, anchor="w").grid(row=i, column=1, padx=5, pady=5)
+        Label(row_frame, text=book['year'], font=("Arial", 12), bg="lightblue", width=10, anchor="w").grid(row=i, column=2, padx=5, pady=5)
+
+    Button(frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
+
+
+
+   
 
 
 def clear_add_book_form():
