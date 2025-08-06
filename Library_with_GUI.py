@@ -114,7 +114,16 @@ def search_books(): # do poprawienia wyświetlanie, docelowo uniweralny frame do
 
 
 def display_full_library():
-    print("Display full library")
+    for widget in display_library_frame.winfo_children():
+        widget.destroy()
+
+    if not library:
+        Label(display_library_frame, text="Your library is empty", font=("Arial", 14), bg="orange").pack(pady=10)
+        return
+    
+    display_books_in_frame(display_library_frame, library)
+
+ 
 
 def delete_book():
     print("Delete a book")
@@ -189,7 +198,12 @@ def build_search_frame():
 
 
 def build_display_library_frame():
-    menu_button = Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14))
+    full_library_label = Label(display_library_frame, text="This is full list of books in your library", font=("Arial", 14), bg="lightyellow")
+    full_library_label.pack(pady=10)
+
+    display_full_library()
+
+
 
 
 def build_delete_frame():
@@ -209,24 +223,48 @@ def display_books_in_frame(frame, books): #wygląda lepiej niż gorzej ale jest 
         Label(frame, text="No books to display", font=("Arial", 14), bg="orange").pack(pady=20)
         return
     
-    header_frame = Frame(frame, bg="lightblue")
-    header_frame.pack(fill=X, pady= (0, 5))
+    canvas_frame = Frame(frame)
+    canvas_frame.pack(fill="both", expand=True)
 
-    Label(header_frame, text="AUTHOR", font=("Arial", 14, "bold"), bg="blue",fg="white", width=25, anchor="w").grid(row=0, column=0, padx=5, pady=5)
-    Label(header_frame, text="TITLE", font=("Arial", 14, "bold"), bg="blue", fg="white", width=25, anchor="w").grid(row=0, column=1, padx=5, pady=5)
-    Label(header_frame, text="YEAR", font=("Arial", 14, "bold"), bg="blue", fg="white", width=10, anchor="w").grid(row=0, column=2, padx=5, pady=5)
+
+    canvas = Canvas(scrollable_frame, height=400)
+    scrollbar = Scrollbar(frame, orient="vertical", command=canvas.yview)
+
+    scrollable_frame = Frame(canvas)
+
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    canvas.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+    scrollbar.pack(side="right", fill="y")
+
+    for col in range(3):
+        scrollable_frame.grid_columnconfigure(col, weight=1)
+
+    header_font = ("Arial", 14, "bold")
+    cell_font = ("Arial", 12)
+    bg_header = "blue"
+    fg_header = "white"
+    bg_cell = "lightblue"
+
+    headers = ["AUTHOR", "TITLE", "YEAR"]
+    widths = [25, 25, 10]
+
+    for col, (text, width) in enumerate(zip(headers, widths)):
+        Label(scrollable_frame, text=text, font=header_font, bg=bg_header, fg=fg_header, width=width, anchor="w").grid(row=0, column=col, padx=5, pady=5, sticky="w")
+
 
     for i, book in enumerate(books, start = 1):
-        row_frame = Frame(frame, bg="lightblue")
-        row_frame.pack(fill=X, pady=5)
-
-        Label(row_frame, text=book['author'], font=("Arial", 12), bg="lightblue", width=25, anchor="w").grid(row=i, column=0, padx=5, pady=5)
-        Label(row_frame, text=book['title'], font=("Arial", 12), bg="lightblue", width=25, anchor="w").grid(row=i, column=1, padx=5, pady=5)
-        Label(row_frame, text=book['year'], font=("Arial", 12), bg="lightblue", width=10, anchor="w").grid(row=i, column=2, padx=5, pady=5)
-
+        Label(scrollable_frame, text=book['author'], font=cell_font, bg=bg_cell, width=25, anchor="w").grid(row=i, column=0, padx=5, pady=5, sticky="w")
+        Label(scrollable_frame, text=book['title'], font=cell_font, bg=bg_cell, width=25, anchor="w").grid(row=i, column=1, padx=5, pady=5, sticky="w")
+        Label(scrollable_frame, text=book['year'], font=cell_font, bg=bg_cell, width=10, anchor="w").grid(row=i, column=2, padx=5, pady=5, sticky="w")
+        
     Button(frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
-
-
 
    
 
