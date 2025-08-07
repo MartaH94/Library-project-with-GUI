@@ -104,7 +104,7 @@ def search_books(): # do poprawienia wyświetlanie, docelowo uniweralny frame do
     if not search_matches:
         search_book_label.config(text="No books found matching your search.", fg="red")
     else:
-        display_books_in_frame(search_for_book_frame, search_matches)
+        display_books_in_frame(tree_frame_search, search_matches)
 
         search_book_label.config(text=result_text.strip(), fg="black")
 
@@ -114,14 +114,11 @@ def search_books(): # do poprawienia wyświetlanie, docelowo uniweralny frame do
 
 
 def display_full_library():
-    for widget in display_library_frame.winfo_children():
-        widget.destroy()
-
     if not library:
         Label(display_library_frame, text="Your library is empty", font=("Arial", 14), bg="orange").pack(pady=10)
         return
     
-    display_books_in_frame(display_library_frame, library)
+    display_books_in_frame(tree_frame_library, library)
 
  
 
@@ -177,7 +174,7 @@ def build_add_book_frame():
 
 
 def build_search_frame():
-    global entry_searched_phrase, search_book_label, search_result_label
+    global entry_searched_phrase, search_book_label, search_result_label, tree_frame_search
 
     search_book_label = Label(search_for_book_frame, text="Enter book title or author to search", font=("Arial", 14))
     search_book_label.pack(pady=10)
@@ -192,18 +189,28 @@ def build_search_frame():
     searching_button.pack(pady=10)
 
     search_result_label.config(text="Please enter a title or author name to search for.", font=("Arial", 14), fg="black")
+
+    tree_frame_search = Frame(search_for_book_frame)
+    tree_frame_search.pack(padx=10, pady=10, fill="both", expand=True)
     
     Button(search_for_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
     clear_search_form()
 
 
 def build_display_library_frame():
+    global tree_frame_library
+
     full_library_label = Label(display_library_frame, text="This is full list of books in your library", font=("Arial", 14), bg="lightyellow")
     full_library_label.pack(pady=10)
 
+    
+
+    tree_frame_library = Frame(display_library_frame)
+    tree_frame_library.pack(padx=10, pady=10, fill="both", expand=True)
+
     display_full_library()
 
-
+    Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
 
 
 def build_delete_frame():
@@ -223,48 +230,26 @@ def display_books_in_frame(frame, books): #wygląda lepiej niż gorzej ale jest 
         Label(frame, text="No books to display", font=("Arial", 14), bg="orange").pack(pady=20)
         return
     
-    canvas_frame = Frame(frame)
-    canvas_frame.pack(fill="both", expand=True)
+    tree = ttk.Treeview(frame, columns=("author", "title", "year"), show="headings", height=20)
+    tree.heading('author', text="AUTHOR")
+    tree.heading('title', text="TITLE")
+    tree.heading('year', text="YEAR")
+
+    tree.column('author', width=300, anchor="w")
+    tree.column('title', width=400, anchor="w")
+    tree.column('year', width=100, anchor="center")
+
+    for book in books:
+        tree.insert('', 'end', values=(book['author'], book['title'], book['year']))
+
+    tree.pack(padx=10, pady=10, fill="both", expand=True)
+
+    
+
+  
 
 
-    canvas = Canvas(scrollable_frame, height=400)
-    scrollbar = Scrollbar(frame, orient="vertical", command=canvas.yview)
-
-    scrollable_frame = Frame(canvas)
-
-    scrollable_frame.bind(
-        "<Configure>",
-        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-    )
-
-    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-    canvas.configure(yscrollcommand=scrollbar.set)
-
-    canvas.pack(side="left", fill="both", expand=True, padx=10, pady=10)
-    scrollbar.pack(side="right", fill="y")
-
-    for col in range(3):
-        scrollable_frame.grid_columnconfigure(col, weight=1)
-
-    header_font = ("Arial", 14, "bold")
-    cell_font = ("Arial", 12)
-    bg_header = "blue"
-    fg_header = "white"
-    bg_cell = "lightblue"
-
-    headers = ["AUTHOR", "TITLE", "YEAR"]
-    widths = [25, 25, 10]
-
-    for col, (text, width) in enumerate(zip(headers, widths)):
-        Label(scrollable_frame, text=text, font=header_font, bg=bg_header, fg=fg_header, width=width, anchor="w").grid(row=0, column=col, padx=5, pady=5, sticky="w")
-
-
-    for i, book in enumerate(books, start = 1):
-        Label(scrollable_frame, text=book['author'], font=cell_font, bg=bg_cell, width=25, anchor="w").grid(row=i, column=0, padx=5, pady=5, sticky="w")
-        Label(scrollable_frame, text=book['title'], font=cell_font, bg=bg_cell, width=25, anchor="w").grid(row=i, column=1, padx=5, pady=5, sticky="w")
-        Label(scrollable_frame, text=book['year'], font=cell_font, bg=bg_cell, width=10, anchor="w").grid(row=i, column=2, padx=5, pady=5, sticky="w")
-        
-    Button(frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
+    
 
    
 
