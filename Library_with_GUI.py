@@ -4,6 +4,7 @@ import json
 import os
 
 from tkinter import *
+from tkinter import messagebox
 from tkinter import ttk
 
 
@@ -113,7 +114,7 @@ def search_books(): # do poprawienia wyświetlanie, docelowo uniweralny frame do
 
 
 
-def display_full_library():
+def display_full_library(library): 
     if not library:
         Label(display_library_frame, text="Your library is empty", font=("Arial", 14), bg="orange").pack(pady=10)
         return
@@ -123,7 +124,37 @@ def display_full_library():
  
 
 def delete_book():
-    print("Delete a book")
+    if not library:
+        Label(delete_book_frame, text="Library is empty. Nothing to delete.", font=("Arial", 14), bg="orange").pack(pady=10)
+        return
+
+    selected_items = delete_book_frame.tree.selection()
+
+    if not selected_items:
+        messagebox.showinfo('Info', 'Please select book(s) to delete')
+        return
+
+    items_to_delete = []
+
+    for itd in selected_items:
+        index = int(itd)
+        items_to_delete.append(index)
+
+    items_to_delete.sort(reverse=True)
+
+    for itd in items_to_delete:
+        library.pop(itd)
+
+    save_to_file()
+
+    display_books_in_frame(delete_book_frame, library, selectmode="browse")
+
+
+
+
+    
+    
+
 
 
 
@@ -203,26 +234,36 @@ def build_display_library_frame():
     full_library_label = Label(display_library_frame, text="This is full list of books in your library", font=("Arial", 14), bg="lightyellow")
     full_library_label.pack(pady=10)
 
-    
-
     tree_frame_library = Frame(display_library_frame)
     tree_frame_library.pack(padx=10, pady=10, fill="both", expand=True)
 
-    display_full_library()
+    display_full_library(library)
 
     Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
 
+    #Ta funkcja wyświetla nowo dodane książki w bibliotece ale dopiero po ponownym uruchomieniu programu. - DO NAPRAWIENIA!
 
-def build_delete_frame():
-    Button(delete_book_frame, text="Delete book", command=delete_book, font=("Arial", 14))
+
+def build_delete_frame(): # do poprawy!!!! nie można zaznaczyć, przyciski w ramce...
+    delete_book_label = Label(delete_book_frame, text="Pick the book(s), that you would like to delete.", font=("Arial", 14), bg="yellow")
+    delete_book_label.pack(pady=10)
+
+    display_books_in_frame(delete_book_frame, library, selectmode="extend")
+
+    Button(delete_book_frame, text="Delete book", command=delete_book, font=("Arial", 14)).pack(pady=10)
+
     clear_delete_form()
     menu_button = Button(delete_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14))
+    menu_button.pack(pady=10)
 
 
 
 
 
-def display_books_in_frame(frame, books): #wygląda lepiej niż gorzej ale jest nierówno
+
+def display_books_in_frame(frame, books, selectmode="browse"): 
+    global tree
+
     for widget in frame.winfo_children():
         widget.destroy()
 
@@ -230,7 +271,7 @@ def display_books_in_frame(frame, books): #wygląda lepiej niż gorzej ale jest 
         Label(frame, text="No books to display", font=("Arial", 14), bg="orange").pack(pady=20)
         return
     
-    tree = ttk.Treeview(frame, columns=("author", "title", "year"), show="headings", height=20)
+    tree = ttk.Treeview(frame, columns=("author", "title", "year"), show="headings" ,height=10, selectmode=selectmode)
     tree.heading('author', text="AUTHOR")
     tree.heading('title', text="TITLE")
     tree.heading('year', text="YEAR")
@@ -242,8 +283,12 @@ def display_books_in_frame(frame, books): #wygląda lepiej niż gorzej ale jest 
     for book in books:
         tree.insert('', 'end', values=(book['author'], book['title'], book['year']))
 
-    tree.pack(padx=10, pady=10, fill="both", expand=True)
+    scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
+    scrollbar.pack(side="right", fill="y")
 
+    tree.configure(yscrollcommand=scrollbar.set)
+    tree.pack(side="left", fill="both", expand=True)
+    frame.tree = tree
     
 
   
