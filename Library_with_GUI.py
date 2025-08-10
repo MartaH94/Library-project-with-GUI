@@ -59,6 +59,7 @@ def save_to_file():
 
 
 
+
 def add_book():
     add_book_message_label.config(text="", fg="black")
 
@@ -83,6 +84,8 @@ def add_book():
     library.append(new_book)
     save_to_file()
     clear_add_book_form()
+
+
 
     add_book_message_label.config(text="You can add another book or return to menu.", font=("Arial", 14), fg="green")
 
@@ -125,6 +128,7 @@ def display_full_library(library):
  
 
 def delete_book():
+    global library
     if not library:
         Label(delete_book_frame, text="Library is empty. Nothing to delete.", font=("Arial", 14), bg="orange").pack(pady=10)
         return
@@ -153,6 +157,14 @@ def delete_book():
     save_to_file()
 
     display_books_in_frame(tree_frame_delete, library, selectmode="extended")
+    display_books_in_frame(tree_frame_library, library)
+    display_books_in_frame(tree_frame_search, library)
+
+
+def display_updated_library():
+    global library
+    library = read_library_from_file()
+    display_full_library(library)
 
 
 
@@ -170,7 +182,7 @@ def build_menu_frame():
 
     add_book_button = Button(menu_frame, text="Add new book", command=lambda: show_frame(add_book_frame), font=("Arial", 14))
     search_book_button = Button(menu_frame, text="Search for a book", command=lambda: show_frame(search_for_book_frame), font=("Arial", 14))
-    display_library_button = Button(menu_frame, text="Display full library", command=lambda: show_frame(display_library_frame), font=("Arial", 14))
+    display_library_button = Button(menu_frame, text="Display full library", command=lambda: (display_updated_library(), show_frame(display_library_frame)), font=("Arial", 14))
     delete_book_button = Button(menu_frame, text="Delete a book", command=lambda: show_frame(delete_book_frame), font=("Arial", 14))
     exit_button = Button(menu_frame, text="Exit library", command=root.quit, font=("Arial", 14))
 
@@ -245,16 +257,17 @@ def build_display_library_frame():
 
     Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
 
-    #Ta funkcja wyświetla nowo dodane książki w bibliotece ale dopiero po ponownym uruchomieniu programu. - DO NAPRAWIENIA!
+    
 
 
-def build_delete_frame(): # do poprawy!!!! nie można zaznaczyć, przyciski w ramce...
+def build_delete_frame(): 
     global tree_frame_delete
+
+    for widget in delete_book_frame.winfo_children():
+        widget.destroy()
 
     delete_book_label = Label(delete_book_frame, text="Pick the book(s), that you would like to delete.", font=("Arial", 14), bg="yellow")
     delete_book_label.pack(pady=10)
-
-   
 
     tree_frame_delete = Frame(delete_book_frame)
     tree_frame_delete.pack(padx=10, pady=10, fill="both", expand=True)
@@ -262,10 +275,10 @@ def build_delete_frame(): # do poprawy!!!! nie można zaznaczyć, przyciski w ra
     display_books_in_frame(tree_frame_delete, library, selectmode="extended")
 
     Button(delete_book_frame, text="Delete book", command=delete_book, font=("Arial", 14)).pack(pady=10)
-
+    Button(delete_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
+    
     clear_delete_form()
-    menu_button = Button(delete_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14))
-    menu_button.pack(pady=10)
+    
 
 
 
@@ -296,8 +309,8 @@ def display_books_in_frame(frame, books, selectmode="browse"):
 
     scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
     scrollbar.pack(side="right", fill="y")
-
     tree.configure(yscrollcommand=scrollbar.set)
+    
     tree.pack(side="left", fill="both", expand=True)
     frame.tree = tree
     
@@ -342,3 +355,13 @@ show_frame(menu_frame)
 
 root.mainloop()
 
+
+
+
+
+
+
+# PROBLEMY DO NAPRAWIENIA!!!
+# usunięta książka nadal jest widoczna po ponownym uruchomieniu programu
+# lista książek się nie odświeża w menu opcji display library
+# label po dodaniu książki nie wyświetla się poprawnie jak wcześniej. 
