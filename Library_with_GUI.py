@@ -18,7 +18,6 @@ search_for_book_frame = Frame(root)
 display_library_frame = Frame(root)
 delete_book_frame = Frame(root)
 
-
 all_frames = [menu_frame, add_book_frame, search_for_book_frame, display_library_frame, delete_book_frame]
 
 message_label = Label(root, text="", font=("Arial", 14))
@@ -33,6 +32,8 @@ def show_frame(frame_to_show):
 
 def clear_message():
     message_label.config(text="")
+
+
 
 
 
@@ -86,7 +87,7 @@ def add_book():
     add_book_message_label.config(text="You can add another book or return to menu.", font=("Arial", 14), fg="green")
 
     
-def search_books(): # do poprawienia wyświetlanie, docelowo uniweralny frame do wyświetlania listy książek
+def search_books(): 
     global result_text
     result_text = ""
     searched_phrase = entry_searched_phrase.get().strip()
@@ -128,7 +129,7 @@ def delete_book():
         Label(delete_book_frame, text="Library is empty. Nothing to delete.", font=("Arial", 14), bg="orange").pack(pady=10)
         return
 
-    selected_items = delete_book_frame.tree.selection()
+    selected_items = tree_frame_delete.tree.selection()
 
     if not selected_items:
         messagebox.showinfo('Info', 'Please select book(s) to delete')
@@ -137,8 +138,12 @@ def delete_book():
     items_to_delete = []
 
     for itd in selected_items:
-        index = int(itd)
-        items_to_delete.append(index)
+        values = tree_frame_delete.tree.item(itd, "values")
+
+        for i, book in enumerate(library):
+            if book['author'] == values[0] and book['title'] == values[1] and book['year'] == values[2]:
+                items_to_delete.append(i)
+                break
 
     items_to_delete.sort(reverse=True)
 
@@ -147,7 +152,7 @@ def delete_book():
 
     save_to_file()
 
-    display_books_in_frame(delete_book_frame, library, selectmode="browse")
+    display_books_in_frame(tree_frame_delete, library, selectmode="extended")
 
 
 
@@ -174,7 +179,6 @@ def build_menu_frame():
     display_library_button.pack(pady=10)
     delete_book_button.pack(pady=10)
     exit_button.pack(pady=10)
-
 
 
 def build_add_book_frame():
@@ -245,10 +249,17 @@ def build_display_library_frame():
 
 
 def build_delete_frame(): # do poprawy!!!! nie można zaznaczyć, przyciski w ramce...
+    global tree_frame_delete
+
     delete_book_label = Label(delete_book_frame, text="Pick the book(s), that you would like to delete.", font=("Arial", 14), bg="yellow")
     delete_book_label.pack(pady=10)
 
-    display_books_in_frame(delete_book_frame, library, selectmode="extend")
+   
+
+    tree_frame_delete = Frame(delete_book_frame)
+    tree_frame_delete.pack(padx=10, pady=10, fill="both", expand=True)
+
+    display_books_in_frame(tree_frame_delete, library, selectmode="extended")
 
     Button(delete_book_frame, text="Delete book", command=delete_book, font=("Arial", 14)).pack(pady=10)
 
