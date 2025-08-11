@@ -34,11 +34,10 @@ def clear_message():
     message_label.config(text="")
 
 
+library_file_path = os.path.join(os.path.dirname(__file__), "user_library.json")
 
 
-
-def read_library_from_file():
-    library_file_path = os.path.join(os.path.dirname(__file__), "user_library.json")
+def read_library_from_file():    
     if not os.path.exists(library_file_path):
         with open(library_file_path, "w") as file: # "w" tryb zapisu pliku (czyli tworzenie pliku "user_library.json")
             json.dump([], file)
@@ -49,7 +48,7 @@ def read_library_from_file():
 library = read_library_from_file()
 
 def save_to_file():
-    with open("user_library.json", "w") as file:
+    with open(library_file_path, "w") as file:
         json.dump(library, file)
     confirm_label = Label(root, text="Changes saved successfully!", font=("Arial", 12), background="lightgreen", fg="black")
     confirm_label.pack(pady=10)
@@ -253,7 +252,6 @@ def build_display_library_frame():
     tree_frame_library = Frame(display_library_frame)
     tree_frame_library.pack(padx=10, pady=10, fill="both", expand=True)
 
-    display_full_library(library)
 
     Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
 
