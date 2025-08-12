@@ -1,5 +1,6 @@
 # Little Virtual Library with GUI
 
+# ===== Importing Libraries =====
 import json
 import os
 
@@ -7,7 +8,8 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 
-
+# ===== GUI Setup =====
+# (Main window and frame creation)
 root = Tk()
 root.title("Your little virtual library")
 root.geometry("1024x768")
@@ -18,12 +20,9 @@ search_for_book_frame = Frame(root)
 display_library_frame = Frame(root)
 delete_book_frame = Frame(root)
 
-
 all_frames = [menu_frame, add_book_frame, search_for_book_frame, display_library_frame, delete_book_frame]
 
 message_label = Label(root, text="", font=("Arial", 14))
-
-
 
 def show_frame(frame_to_show):
     for f in all_frames:
@@ -35,9 +34,11 @@ def clear_message():
     message_label.config(text="")
 
 
+# ===== Library Data Handling =====
+# (Loading, saving, and storing book data)
+library_file_path = os.path.join(os.path.dirname(__file__), "user_library.json")
 
-def read_library_from_file():
-    library_file_path = os.path.join(os.path.dirname(__file__), "user_library.json")
+def read_library_from_file():    
     if not os.path.exists(library_file_path):
         with open(library_file_path, "w") as file: # "w" tryb zapisu pliku (czyli tworzenie pliku "user_library.json")
             json.dump([], file)
@@ -48,16 +49,14 @@ def read_library_from_file():
 library = read_library_from_file()
 
 def save_to_file():
-    with open("user_library.json", "w") as file:
+    with open(library_file_path, "w") as file:
         json.dump(library, file)
     confirm_label = Label(root, text="Changes saved successfully!", font=("Arial", 12), background="lightgreen", fg="black")
     confirm_label.pack(pady=10)
     root.after(2000, confirm_label.destroy)  # Remove the confirmation message after
     
 
-
-
-
+# ===== Add Book Functions =====
 def add_book():
     add_book_message_label.config(text="", fg="black")
 
@@ -85,8 +84,8 @@ def add_book():
 
     add_book_message_label.config(text="You can add another book or return to menu.", font=("Arial", 14), fg="green")
 
-    
-def search_books(): # do poprawienia wyświetlanie, docelowo uniweralny frame do wyświetlania listy książek
+# ===== Search Book Functions =====    
+def search_books(): 
     global result_text
     result_text = ""
     searched_phrase = entry_searched_phrase.get().strip()
@@ -111,24 +110,22 @@ def search_books(): # do poprawienia wyświetlanie, docelowo uniweralny frame do
 
     clear_search_form()
 
-
-
-
+# ===== Display Library =====
 def display_full_library(library): 
     if not library:
         Label(display_library_frame, text="Your library is empty", font=("Arial", 14), bg="orange").pack(pady=10)
         return
     
     display_books_in_frame(tree_frame_library, library)
-
  
-
+# ===== Delete Book Functions =====
 def delete_book():
+    global library
     if not library:
         Label(delete_book_frame, text="Library is empty. Nothing to delete.", font=("Arial", 14), bg="orange").pack(pady=10)
         return
 
-    selected_items = delete_book_frame.tree.selection()
+    selected_items = tree_frame_delete.tree.selection()
 
     if not selected_items:
         messagebox.showinfo('Info', 'Please select book(s) to delete')
@@ -136,36 +133,40 @@ def delete_book():
 
     items_to_delete = []
 
-    for itd in selected_items:
-        index = int(itd)
-        items_to_delete.append(index)
+    for item_to_delete in selected_items:
+        values = tree_frame_delete.tree.item(item_to_delete, "values")
+
+        for i, book in enumerate(library):
+            if book['author'] == values[0] and book['title'] == values[1] and book['year'] == values[2]:
+                items_to_delete.append(i)
+                break
 
     items_to_delete.sort(reverse=True)
 
-    for itd in items_to_delete:
-        library.pop(itd)
+    for item_to_delete in items_to_delete:
+        library.pop(item_to_delete)
 
     save_to_file()
 
-    display_books_in_frame(delete_book_frame, library, selectmode="browse")
+    display_books_in_frame(tree_frame_delete, library, selectmode="extended")
+    display_books_in_frame(tree_frame_library, library)
+    display_books_in_frame(tree_frame_search, library)
 
 
+def display_updated_library():
+    global library
+    library = read_library_from_file()
+    display_full_library(library)
 
 
-    
-    
-
-
-
-
-
+# ===== GUI Setup =====
 def build_menu_frame():
     message_label.config(text="Welcome to your virtual library!", font=("Arial", 16), background="lightblue", fg="black")
     message_label.pack(pady=10)
 
     add_book_button = Button(menu_frame, text="Add new book", command=lambda: show_frame(add_book_frame), font=("Arial", 14))
     search_book_button = Button(menu_frame, text="Search for a book", command=lambda: show_frame(search_for_book_frame), font=("Arial", 14))
-    display_library_button = Button(menu_frame, text="Display full library", command=lambda: show_frame(display_library_frame), font=("Arial", 14))
+    display_library_button = Button(menu_frame, text="Display full library", command=lambda: (display_updated_library(), show_frame(display_library_frame)), font=("Arial", 14))
     delete_book_button = Button(menu_frame, text="Delete a book", command=lambda: show_frame(delete_book_frame), font=("Arial", 14))
     exit_button = Button(menu_frame, text="Exit library", command=root.quit, font=("Arial", 14))
 
@@ -174,7 +175,6 @@ def build_menu_frame():
     display_library_button.pack(pady=10)
     delete_book_button.pack(pady=10)
     exit_button.pack(pady=10)
-
 
 
 def build_add_book_frame():
@@ -237,30 +237,27 @@ def build_display_library_frame():
     tree_frame_library = Frame(display_library_frame)
     tree_frame_library.pack(padx=10, pady=10, fill="both", expand=True)
 
-    display_full_library(library)
-
     Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
 
-    #Ta funkcja wyświetla nowo dodane książki w bibliotece ale dopiero po ponownym uruchomieniu programu. - DO NAPRAWIENIA!
+    
+def build_delete_frame(): 
+    global tree_frame_delete
 
+    for widget in delete_book_frame.winfo_children():
+        widget.destroy()
 
-def build_delete_frame(): # do poprawy!!!! nie można zaznaczyć, przyciski w ramce...
     delete_book_label = Label(delete_book_frame, text="Pick the book(s), that you would like to delete.", font=("Arial", 14), bg="yellow")
     delete_book_label.pack(pady=10)
 
-    display_books_in_frame(delete_book_frame, library, selectmode="extend")
+    tree_frame_delete = Frame(delete_book_frame)
+    tree_frame_delete.pack(padx=10, pady=10, fill="both", expand=True)
+
+    display_books_in_frame(tree_frame_delete, library, selectmode="extended")
 
     Button(delete_book_frame, text="Delete book", command=delete_book, font=("Arial", 14)).pack(pady=10)
-
-    clear_delete_form()
-    menu_button = Button(delete_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14))
-    menu_button.pack(pady=10)
-
-
-
-
-
-
+    Button(delete_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
+    
+    
 def display_books_in_frame(frame, books, selectmode="browse"): 
     global tree
 
@@ -285,38 +282,20 @@ def display_books_in_frame(frame, books, selectmode="browse"):
 
     scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
     scrollbar.pack(side="right", fill="y")
-
     tree.configure(yscrollcommand=scrollbar.set)
+    
     tree.pack(side="left", fill="both", expand=True)
     frame.tree = tree
     
-
-  
-
-
-    
-
-   
-
 
 def clear_add_book_form():
     entry_author.delete(0,END)
     entry_title.delete(0, END)
     entry_year.delete(0,END)
 
-
 def clear_search_form():
     entry_searched_phrase.delete(0, END)
     search_result_label.config(text="")
-
-
-def get_book_to_delete():
-    pass
-
-def clear_delete_form():
-    pass
-
-
 
 
 build_menu_frame()
@@ -326,8 +305,6 @@ build_display_library_frame()
 build_delete_frame()
 
 
-
 show_frame(menu_frame)
 
 root.mainloop()
-
