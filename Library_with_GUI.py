@@ -3,10 +3,8 @@
 # ===== Importing Libraries =====
 import json
 import os
-
 from tkinter import *
-from tkinter import messagebox
-from tkinter import ttk
+from tkinter import messagebox, ttk
 
 # ===== GUI Setup =====
 # (Main window and frame creation)
@@ -20,15 +18,23 @@ search_for_book_frame = Frame(root)
 display_library_frame = Frame(root)
 delete_book_frame = Frame(root)
 
-all_frames = [menu_frame, add_book_frame, search_for_book_frame, display_library_frame, delete_book_frame]
+all_frames = [
+    menu_frame,
+    add_book_frame,
+    search_for_book_frame,
+    display_library_frame,
+    delete_book_frame,
+]
 
 message_label = Label(root, text="", font=("Arial", 14))
+
 
 def show_frame(frame_to_show):
     for f in all_frames:
         f.pack_forget()
     frame_to_show.pack(pady=20)
     message_label.pack(pady=10)
+
 
 def clear_message():
     message_label.config(text="")
@@ -38,23 +44,36 @@ def clear_message():
 # (Loading, saving, and storing book data)
 library_file_path = os.path.join(os.path.dirname(__file__), "user_library.json")
 
-def read_library_from_file():    
+
+def read_library_from_file():
     if not os.path.exists(library_file_path):
-        with open(library_file_path, "w") as file: # "w" tryb zapisu pliku (czyli tworzenie pliku "user_library.json")
+        with open(
+            library_file_path, "w"
+        ) as file:  # "w" tryb zapisu pliku (czyli tworzenie pliku "user_library.json")
             json.dump([], file)
         return []
-    with open(library_file_path, "r") as file: # "r" tryb odczytu z pliku (czyli wyświetlenie zawartości pliku "user_library.json")
+    with open(
+        library_file_path, "r"
+    ) as file:  # "r" tryb odczytu z pliku (czyli wyświetlenie zawartości pliku "user_library.json")
         return json.load(file)
-    
+
+
 library = read_library_from_file()
+
 
 def save_to_file():
     with open(library_file_path, "w") as file:
         json.dump(library, file)
-    confirm_label = Label(root, text="Changes saved successfully!", font=("Arial", 12), background="lightgreen", fg="black")
+    confirm_label = Label(
+        root,
+        text="Changes saved successfully!",
+        font=("Arial", 12),
+        background="lightgreen",
+        fg="black",
+    )
     confirm_label.pack(pady=10)
     root.after(2000, confirm_label.destroy)  # Remove the confirmation message after
-    
+
 
 # ===== Add Book Functions =====
 def add_book():
@@ -65,40 +84,58 @@ def add_book():
     year = entry_year.get().strip()
 
     if not author or not title or not year:
-        add_book_message_label.config(text="All fields are required!", font=("Arial", 14), fg="red")
+        add_book_message_label.config(
+            text="All fields are required!", font=("Arial", 14), fg="red"
+        )
         return
-    
+
     if not year.isdigit() or len(year) != 4:
-        add_book_message_label.config(text="Year of release must be a 4-digit number. Try again", font=("Arial", 14), fg="red")
+        add_book_message_label.config(
+            text="Year of release must be a 4-digit number. Try again",
+            font=("Arial", 14),
+            fg="red",
+        )
         return
-    
-    new_book = {
-        "author" : author,
-        "title" : title,
-        "year" : year
-    }
+
+    new_book = {"author": author, "title": title, "year": year}
 
     library.append(new_book)
     save_to_file()
     clear_add_book_form()
 
-    add_book_message_label.config(text="You can add another book or return to menu.", font=("Arial", 14), fg="green")
+    add_book_message_label.config(
+        text="You can add another book or return to menu.",
+        font=("Arial", 14),
+        fg="green",
+    )
 
-# ===== Search Book Functions =====    
-def search_books(): 
+
+# ===== Search Book Functions =====
+def search_books():
+
+    if not library:
+        search_book_label.config(text="Library is empty. Nothing to search.", fg="red")
+        search_result_label.config(text="")
+        return
+
     global result_text
     result_text = ""
     searched_phrase = entry_searched_phrase.get().strip()
 
     if not searched_phrase:
-        search_book_label.config(text="Please enter a title or author to search.", fg="red")
+        search_book_label.config(
+            text="Please enter a title or author to search.", fg="red"
+        )
         search_result_label.config(text="")
         return
-    
+
     search_matches = []
 
     for book in library:
-        if searched_phrase.lower() in book['title'].lower() or searched_phrase.lower() in book['author'].lower():
+        if (
+            searched_phrase.lower() in book["title"].lower()
+            or searched_phrase.lower() in book["author"].lower()
+        ):
             search_matches.append(book)
 
     if not search_matches:
@@ -110,25 +147,38 @@ def search_books():
 
     clear_search_form()
 
+
 # ===== Display Library =====
-def display_full_library(library): 
+def display_full_library(library):
     if not library:
-        Label(display_library_frame, text="Your library is empty", font=("Arial", 14), bg="orange").pack(pady=10)
+        Label(
+            display_library_frame,
+            text="Your library is empty",
+            font=("Arial", 14),
+            bg="orange",
+        ).pack(pady=10)
         return
-    
+
     display_books_in_frame(tree_frame_library, library)
- 
+
+
 # ===== Delete Book Functions =====
 def delete_book():
     global library
     if not library:
-        Label(delete_book_frame, text="Library is empty. Nothing to delete.", font=("Arial", 14), bg="orange").pack(pady=10)
+        display_books_in_frame(tree_frame_delete, library, selectmode="extended")
+        Label(
+            delete_book_frame,
+            text="Library is empty. Nothing to delete.",
+            font=("Arial", 14),
+            bg="orange",
+        ).pack(pady=10)
         return
 
     selected_items = tree_frame_delete.tree.selection()
 
     if not selected_items:
-        messagebox.showinfo('Info', 'Please select book(s) to delete')
+        messagebox.showinfo("Info", "Please select book(s) to delete")
         return
 
     items_to_delete = []
@@ -137,7 +187,11 @@ def delete_book():
         values = tree_frame_delete.tree.item(item_to_delete, "values")
 
         for i, book in enumerate(library):
-            if book['author'] == values[0] and book['title'] == values[1] and book['year'] == values[2]:
+            if (
+                book["author"] == values[0]
+                and book["title"] == values[1]
+                and book["year"] == values[2]
+            ):
                 items_to_delete.append(i)
                 break
 
@@ -161,14 +215,41 @@ def display_updated_library():
 
 # ===== GUI Setup =====
 def build_menu_frame():
-    message_label.config(text="Welcome to your virtual library!", font=("Arial", 16), background="lightblue", fg="black")
+    message_label.config(
+        text="Welcome to your virtual library!",
+        font=("Arial", 16),
+        background="lightblue",
+        fg="black",
+    )
     message_label.pack(pady=10)
 
-    add_book_button = Button(menu_frame, text="Add new book", command=lambda: show_frame(add_book_frame), font=("Arial", 14))
-    search_book_button = Button(menu_frame, text="Search for a book", command=lambda: show_frame(search_for_book_frame), font=("Arial", 14))
-    display_library_button = Button(menu_frame, text="Display full library", command=lambda: (display_updated_library(), show_frame(display_library_frame)), font=("Arial", 14))
-    delete_book_button = Button(menu_frame, text="Delete a book", command=lambda: show_frame(delete_book_frame), font=("Arial", 14))
-    exit_button = Button(menu_frame, text="Exit library", command=root.quit, font=("Arial", 14))
+    add_book_button = Button(
+        menu_frame,
+        text="Add new book",
+        command=lambda: show_frame(add_book_frame),
+        font=("Arial", 14),
+    )
+    search_book_button = Button(
+        menu_frame,
+        text="Search for a book",
+        command=lambda: show_frame(search_for_book_frame),
+        font=("Arial", 14),
+    )
+    display_library_button = Button(
+        menu_frame,
+        text="Display full library",
+        command=lambda: (display_updated_library(), show_frame(display_library_frame)),
+        font=("Arial", 14),
+    )
+    delete_book_button = Button(
+        menu_frame,
+        text="Delete a book",
+        command=lambda: show_frame(delete_book_frame),
+        font=("Arial", 14),
+    )
+    exit_button = Button(
+        menu_frame, text="Exit library", command=root.quit, font=("Arial", 14)
+    )
 
     add_book_button.pack(pady=10)
     search_book_button.pack(pady=10)
@@ -193,13 +274,25 @@ def build_add_book_frame():
     entry_year = Entry(add_book_frame, font=("Arial", 14))
     entry_year.pack(pady=5)
 
-    add_book_button = Button(add_book_frame, text="Add book to library", command=add_book, font=("Arial", 14))
+    add_book_button = Button(
+        add_book_frame, text="Add book to library", command=add_book, font=("Arial", 14)
+    )
     add_book_button.pack(pady=10)
-    
-    add_book_message_label = Label(add_book_frame, text="Please fill in all fields to add a book to your library", font=("Arial", 16), background="lightblue")
+
+    add_book_message_label = Label(
+        add_book_frame,
+        text="Please fill in all fields to add a book to your library",
+        font=("Arial", 16),
+        background="lightblue",
+    )
     add_book_message_label.pack(pady=10)
 
-    Button(add_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
+    Button(
+        add_book_frame,
+        text="Back to menu",
+        command=lambda: show_frame(menu_frame),
+        font=("Arial", 14),
+    ).pack(pady=10)
 
     clear_add_book_form()
 
@@ -207,46 +300,86 @@ def build_add_book_frame():
 def build_search_frame():
     global entry_searched_phrase, search_book_label, search_result_label, tree_frame_search
 
-    search_book_label = Label(search_for_book_frame, text="Enter book title or author to search", font=("Arial", 14))
+    search_book_label = Label(
+        search_for_book_frame,
+        text="Enter book title or author to search",
+        font=("Arial", 14),
+    )
     search_book_label.pack(pady=10)
 
-    search_result_label = Label(search_for_book_frame, text="", font=("Arial", 14), fg="black", background="lightyellow", justify="left")
+    search_result_label = Label(
+        search_for_book_frame,
+        text="",
+        font=("Arial", 14),
+        fg="black",
+        background="lightyellow",
+        justify="left",
+    )
     search_result_label.pack(pady=10)
 
     entry_searched_phrase = Entry(search_for_book_frame, font=("Arial", 14))
     entry_searched_phrase.pack(pady=10)
 
-    searching_button =Button(search_for_book_frame, text="Search for book", command=search_books, font=("Arial", 14))
+    searching_button = Button(
+        search_for_book_frame,
+        text="Search for book",
+        command=search_books,
+        font=("Arial", 14),
+    )
     searching_button.pack(pady=10)
 
-    search_result_label.config(text="Please enter a title or author name to search for.", font=("Arial", 14), fg="black")
+    search_result_label.config(
+        text="Please enter a title or author name to search for.",
+        font=("Arial", 14),
+        fg="black",
+    )
 
     tree_frame_search = Frame(search_for_book_frame)
     tree_frame_search.pack(padx=10, pady=10, fill="both", expand=True)
-    
-    Button(search_for_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
+
+    Button(
+        search_for_book_frame,
+        text="Back to menu",
+        command=lambda: show_frame(menu_frame),
+        font=("Arial", 14),
+    ).pack(pady=10)
     clear_search_form()
 
 
 def build_display_library_frame():
     global tree_frame_library
 
-    full_library_label = Label(display_library_frame, text="This is full list of books in your library", font=("Arial", 14), bg="lightyellow")
+    full_library_label = Label(
+        display_library_frame,
+        text="This is full list of books in your library",
+        font=("Arial", 14),
+        bg="lightyellow",
+    )
     full_library_label.pack(pady=10)
 
     tree_frame_library = Frame(display_library_frame)
     tree_frame_library.pack(padx=10, pady=10, fill="both", expand=True)
 
-    Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
+    Button(
+        display_library_frame,
+        text="Back to menu",
+        command=lambda: show_frame(menu_frame),
+        font=("Arial", 14),
+    ).pack(pady=10)
 
-    
-def build_delete_frame(): 
+
+def build_delete_frame():
     global tree_frame_delete
 
     for widget in delete_book_frame.winfo_children():
         widget.destroy()
 
-    delete_book_label = Label(delete_book_frame, text="Pick the book(s), that you would like to delete.", font=("Arial", 14), bg="yellow")
+    delete_book_label = Label(
+        delete_book_frame,
+        text="Pick the book(s), that you would like to delete.",
+        font=("Arial", 14),
+        bg="yellow",
+    )
     delete_book_label.pack(pady=10)
 
     tree_frame_delete = Frame(delete_book_frame)
@@ -254,44 +387,60 @@ def build_delete_frame():
 
     display_books_in_frame(tree_frame_delete, library, selectmode="extended")
 
-    Button(delete_book_frame, text="Delete book", command=delete_book, font=("Arial", 14)).pack(pady=10)
-    Button(delete_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame), font=("Arial", 14)).pack(pady=10)
-    
-    
-def display_books_in_frame(frame, books, selectmode="browse"): 
+    Button(
+        delete_book_frame, text="Delete book", command=delete_book, font=("Arial", 14)
+    ).pack(pady=10)
+    Button(
+        delete_book_frame,
+        text="Back to menu",
+        command=lambda: show_frame(menu_frame),
+        font=("Arial", 14),
+    ).pack(pady=10)
+
+
+def display_books_in_frame(frame, books, selectmode="browse"):
     global tree
 
     for widget in frame.winfo_children():
         widget.destroy()
 
     if not books:
-        Label(frame, text="No books to display", font=("Arial", 14), bg="orange").pack(pady=20)
+        Label(frame, text="No books to display", font=("Arial", 14), bg="orange").pack(
+            pady=20
+        )
         return
-    
-    tree = ttk.Treeview(frame, columns=("author", "title", "year"), show="headings" ,height=10, selectmode=selectmode)
-    tree.heading('author', text="AUTHOR")
-    tree.heading('title', text="TITLE")
-    tree.heading('year', text="YEAR")
 
-    tree.column('author', width=300, anchor="w")
-    tree.column('title', width=400, anchor="w")
-    tree.column('year', width=100, anchor="center")
+    tree = ttk.Treeview(
+        frame,
+        columns=("author", "title", "year"),
+        show="headings",
+        height=10,
+        selectmode=selectmode,
+    )
+    tree.heading("author", text="AUTHOR")
+    tree.heading("title", text="TITLE")
+    tree.heading("year", text="YEAR")
+
+    tree.column("author", width=300, anchor="w")
+    tree.column("title", width=400, anchor="w")
+    tree.column("year", width=100, anchor="center")
 
     for book in books:
-        tree.insert('', 'end', values=(book['author'], book['title'], book['year']))
+        tree.insert("", "end", values=(book["author"], book["title"], book["year"]))
 
     scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
     scrollbar.pack(side="right", fill="y")
     tree.configure(yscrollcommand=scrollbar.set)
-    
+
     tree.pack(side="left", fill="both", expand=True)
     frame.tree = tree
-    
+
 
 def clear_add_book_form():
-    entry_author.delete(0,END)
+    entry_author.delete(0, END)
     entry_title.delete(0, END)
-    entry_year.delete(0,END)
+    entry_year.delete(0, END)
+
 
 def clear_search_form():
     entry_searched_phrase.delete(0, END)
