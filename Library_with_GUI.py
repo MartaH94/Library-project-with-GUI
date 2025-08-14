@@ -165,14 +165,10 @@ def display_full_library(library):
 # ===== Delete Book Functions =====
 def delete_book():
     global library
+
     if not library:
         display_books_in_frame(tree_frame_delete, library, selectmode="extended")
-        Label(
-            delete_book_frame,
-            text="Library is empty. Nothing to delete.",
-            font=("Arial", 14),
-            bg="orange",
-        ).pack(pady=10)
+        delete_book_label.config(text="Library is empty, no books to delete.")
         return
 
     selected_items = tree_frame_delete.tree.selection()
@@ -369,7 +365,7 @@ def build_display_library_frame():
 
 
 def build_delete_frame():
-    global tree_frame_delete
+    global tree_frame_delete, delete_book_label
 
     for widget in delete_book_frame.winfo_children():
         widget.destroy()
