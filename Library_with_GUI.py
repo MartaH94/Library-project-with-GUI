@@ -92,7 +92,6 @@ def search_books():
 
     if not searched_phrase:
         search_book_label.config(text="Please enter a title or author to search.", fg="red")
-        search_result_label.config(text="")
         return
     
     search_matches = []
@@ -139,7 +138,7 @@ def delete_book():
         for i, book in enumerate(library):
             if book['author'] == values[0] and book['title'] == values[1] and book['year'] == values[2]:
                 items_to_delete.append(i)
-                break
+                
 
     items_to_delete.sort(reverse=True)
 
@@ -148,10 +147,9 @@ def delete_book():
 
     save_to_file()
 
-    display_books_in_frame(tree_frame_delete, library, selectmode="extended")
     display_books_in_frame(tree_frame_library, library)
     display_books_in_frame(tree_frame_search, library)
-
+    tree_frame_delete.tree = display_books_in_frame(tree_frame_delete, library, selectmode="extended")
 
 def display_updated_library():
     global library
@@ -167,7 +165,7 @@ def build_menu_frame():
     add_book_button = Button(menu_frame, text="Add new book", command=lambda: show_frame(add_book_frame), font=("Arial", 14))
     search_book_button = Button(menu_frame, text="Search for a book", command=lambda: show_frame(search_for_book_frame), font=("Arial", 14))
     display_library_button = Button(menu_frame, text="Display full library", command=lambda: (display_updated_library(), show_frame(display_library_frame)), font=("Arial", 14))
-    delete_book_button = Button(menu_frame, text="Delete a book", command=lambda: show_frame(delete_book_frame), font=("Arial", 14))
+    delete_book_button = Button(menu_frame, text="Delete a book", command=lambda: (display_updated_library(), show_frame(delete_book_frame)), font=("Arial", 14))
     exit_button = Button(menu_frame, text="Exit library", command=root.quit, font=("Arial", 14))
 
     add_book_button.pack(pady=10)
@@ -205,21 +203,16 @@ def build_add_book_frame():
 
 
 def build_search_frame():
-    global entry_searched_phrase, search_book_label, search_result_label, tree_frame_search
+    global entry_searched_phrase, search_book_label, tree_frame_search
 
     search_book_label = Label(search_for_book_frame, text="Enter book title or author to search", font=("Arial", 14))
     search_book_label.pack(pady=10)
-
-    search_result_label = Label(search_for_book_frame, text="", font=("Arial", 14), fg="black", background="lightyellow", justify="left")
-    search_result_label.pack(pady=10)
 
     entry_searched_phrase = Entry(search_for_book_frame, font=("Arial", 14))
     entry_searched_phrase.pack(pady=10)
 
     searching_button =Button(search_for_book_frame, text="Search for book", command=search_books, font=("Arial", 14))
     searching_button.pack(pady=10)
-
-    search_result_label.config(text="Please enter a title or author name to search for.", font=("Arial", 14), fg="black")
 
     tree_frame_search = Frame(search_for_book_frame)
     tree_frame_search.pack(padx=10, pady=10, fill="both", expand=True)
@@ -286,7 +279,7 @@ def display_books_in_frame(frame, books, selectmode="browse"):
     
     tree.pack(side="left", fill="both", expand=True)
     frame.tree = tree
-    
+    return tree
 
 def clear_add_book_form():
     entry_author.delete(0,END)
@@ -295,7 +288,6 @@ def clear_add_book_form():
 
 def clear_search_form():
     entry_searched_phrase.delete(0, END)
-    search_result_label.config(text="")
 
 
 build_menu_frame()
