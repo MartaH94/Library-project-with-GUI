@@ -4,6 +4,8 @@
 import json
 import os
 
+import ttkbootstrap as tb
+from ttkbootstrap.constants import *
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
@@ -11,7 +13,7 @@ from ttkthemes import ThemedTk
 
 # ===== GUI Setup =====
 # (Main window and frame creation)
-root = ThemedTk(theme='arc')
+root = tb.Window(themename='solar')
 
 root.title("Your little virtual library")
 root.geometry("1024x768")
