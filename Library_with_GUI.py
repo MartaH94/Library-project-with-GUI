@@ -6,14 +6,22 @@ import os
 
 import ttkbootstrap as tb
 from ttkbootstrap.constants import *
+import tkinter.font as tkFont
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
-from ttkthemes import ThemedTk
 
 # ===== GUI Setup =====
 # (Main window and frame creation)
 root = tb.Window(themename='solar')
+
+default_font = tkFont.nametofont("TkDefaultFont")
+default_font.configure(size=14)
+root.option_add("*Font", default_font)
+
+style = tb.Style()
+style.configure("TButton", font=("Segoe UI", 14))
+style.configure("TLabel", font=("Segoe UI", 16))
 
 root.title("Your little virtual library")
 root.geometry("1024x768")
