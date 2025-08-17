@@ -26,14 +26,6 @@ all_frames = [menu_frame, add_book_frame, search_for_book_frame, display_library
 
 message_label = ttk.Label(root, text="")
 
-buttons_style = ttk.Style()
-buttons_style.configure(
-    "General.TButton",
-    font=("Helvetica", 12), 
-    background="DarkOlive2",
-    foreground="black",
-    padding=(10, 5)
-)
 
 def show_frame(frame_to_show):
     for f in all_frames:
@@ -175,9 +167,6 @@ def build_menu_frame():
     message_label.config(text="Welcome to your virtual library!")
     message_label.pack(pady=10)
 
-    root.configure(bg="AntiqueWhite1")
-
-    # add_book_button = Button(menu_frame, text="Add new book", command=lambda: show_frame(add_book_frame), font=("Arial", 14))
     add_book_button = ttk.Button(menu_frame, text="Adding book(s)", command=lambda: show_frame(add_book_frame), style="TButton")
     add_book_button.pack(pady=10)
 
@@ -198,6 +187,9 @@ def build_add_book_frame():
     global add_book_message_label
     global entry_author, entry_title, entry_year
 
+    add_book_message_label = ttk.Label(add_book_frame, text="Please fill in all fields to add a book to your library")
+    add_book_message_label.pack(pady=10)
+
     author_label = ttk.Label(add_book_frame, text="Author")
     author_label.pack(pady=10)
     entry_author = Entry(add_book_frame, font=("Arial", 14))
@@ -216,9 +208,6 @@ def build_add_book_frame():
     add_book_button = ttk.Button(add_book_frame, text="Add book to library", command=add_book)
     add_book_button.pack(pady=10)
     
-    add_book_message_label = ttk.Label(add_book_frame, text="Please fill in all fields to add a book to your library", font=("Arial", 16), style="TLabel")
-    add_book_message_label.pack(pady=10)
-
     to_menu_button = ttk.Button(add_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame))
     to_menu_button.pack(pady=10)
 
@@ -234,12 +223,12 @@ def build_search_frame():
     entry_searched_phrase = ttk.Entry(search_for_book_frame)
     entry_searched_phrase.pack(pady=10)
 
-    searching_button = ttk.Button(search_for_book_frame, text="Search for book", command=search_books)
-    searching_button.pack(pady=10)
-
     tree_frame_search = Frame(search_for_book_frame)
     tree_frame_search.pack(padx=10, pady=10, fill="both", expand=True)
     
+    searching_button = ttk.Button(search_for_book_frame, text="Search for book", command=search_books)
+    searching_button.pack(pady=10)
+
     to_menu_button = ttk.Button(search_for_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame))
     to_menu_button.pack(pady=10)
     clear_search_form()
@@ -274,7 +263,7 @@ def build_delete_frame():
 
     deletete_book_button = ttk.Button(delete_book_frame, text="Delete book", command=delete_book)
     deletete_book_button.pack(pady=10)
-    to_menu_button = ttk.Button(display_library_frame, text="Back to menu", command=lambda: show_frame(menu_frame))
+    to_menu_button = ttk.Button(delete_book_frame, text="Back to menu", command=lambda: show_frame(menu_frame))
     to_menu_button.pack(pady=10)
     
     
@@ -294,9 +283,9 @@ def display_books_in_frame(frame, books, selectmode="browse"):
     tree.heading('title', text="TITLE")
     tree.heading('year', text="YEAR")
 
-    tree.column('author', width=300, anchor="w")
-    tree.column('title', width=400, anchor="w")
-    tree.column('year', width=100, anchor="center")
+    tree.column('author', width=300, anchor="center", stretch=False)
+    tree.column('title', width=400, anchor="center", stretch=False)
+    tree.column('year', width=100, anchor="center", stretch=False)
 
     for book in books:
         tree.insert('', 'end', values=(book['author'], book['title'], book['year']))
