@@ -84,6 +84,7 @@ def add_book():
     if not year.isdigit() or len(year) != 4:
         add_book_message_label.config(text="Year of release must be a 4-digit number. Try again")
         return
+        # !!! dodać walidację zakresu dat, żeby nie było np 0000
     
     new_book = {
         "author" : author,
@@ -135,6 +136,7 @@ def display_full_library(library):
 def delete_book():
     global library
     if not library:
+        display_books_in_frame(tree_frame_delete, library, selectmode="extended")
         info_label = ttk.Label(delete_book_frame, text="Library is empty. Nothing to delete.")
         info_label.pack(pady=10)
         return
@@ -162,9 +164,11 @@ def delete_book():
 
     save_to_file()
 
+    tree_frame_delete.tree = display_books_in_frame(tree_frame_delete, library, selectmode="extended")
+
     display_books_in_frame(tree_frame_library, library)
     display_books_in_frame(tree_frame_search, library)
-    tree_frame_delete.tree = display_books_in_frame(tree_frame_delete, library, selectmode="extended")
+    
 
 def display_updated_library():
     global library
@@ -258,7 +262,7 @@ def build_display_library_frame():
 
     
 def build_delete_frame(): 
-    global tree_frame_delete
+    global tree_frame_delete, delete_book_label
 
     for widget in delete_book_frame.winfo_children():
         widget.destroy()
