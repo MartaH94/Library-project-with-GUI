@@ -1,3 +1,10 @@
+CRITICAL:
+Menu option: Add a book
+Issue: Label "your library is empty" is still visible after adding a book to empty library.
+
+Menu option: Delete a book
+Issue: Frame doesn't display added books and it's impossible to delete newly added book.
+
 
 🐞 Bug Fixes
 Function: add_book
@@ -32,4 +39,4 @@ Book Uniqueness Check
 Delete Confirmation Dialog
 Theme Switching
 
-You can add a dropdown menu to let users choose and apply a theme dynamically.
+*You can add a dropdown menu to let users choose and apply a theme dynamically.
