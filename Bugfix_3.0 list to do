@@ -1,0 +1,42 @@
+CRITICAL:
+Menu option: Add a book
+Issue: Label "your library is empty" is still visible after adding a book to empty library.
+
+Menu option: Delete a book
+Issue: Frame doesn't display added books and it's impossible to delete newly added book.
+
+
+🐞 Bug Fixes
+Function: add_book
+Issue: Missing validation for the year range.
+Fix: Add a check to ensure the year is within a sensible range, e.g. 1900 <= int(year) <= 2100.
+
+Function: delete_book
+Issue: Tries to display the Treeview even when the library is empty.
+Fix: Move the display_books_in_frame call below the if not library condition.
+
+Function: search_books
+Issue: result_text is declared as a global variable but used only locally.
+Fix: Convert result_text to a local variable.
+
+Function: display_books_in_frame
+Issue: Overwrites the global tree variable, which may cause errors.
+Fix: Remove the global tree and use frame.tree instead.
+
+Function: save_to_file
+Issue: The “Changes saved successfully!” label is created multiple times.
+Fix: Use a single label and update its text instead of creating a new one each time.
+
+Function: build_delete_frame
+Issue: Typo in variable name deletete_book_button.
+Fix: Rename to delete_book_button.
+
+
+🚀 Feature Enhancements
+
+Year Validation in add_book
+Book Uniqueness Check
+Delete Confirmation Dialog
+Theme Switching
+
+*You can add a dropdown menu to let users choose and apply a theme dynamically.
