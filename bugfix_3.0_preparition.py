@@ -11,7 +11,6 @@ import ttkbootstrap as tb
 from ttkbootstrap.constants import *
 
 # ===== GUI Setup =====
-# (Main window and frame creation)
 root = tb.Window(themename="solar")
 
 default_font = tkFont.nametofont("TkDefaultFont")
@@ -43,6 +42,7 @@ message_label = ttk.Label(root, text="")
 
 
 def show_frame(frame_to_show):
+    """Show the selected frame in the GUI."""
     for f in all_frames:
         f.pack_forget()
     frame_to_show.pack(pady=20)
@@ -50,24 +50,21 @@ def show_frame(frame_to_show):
 
 
 def clear_message():
+    """Clear the message label."""
     message_label.config(text="")
 
 
 # ===== Library Data Handling =====
-# (Loading, saving, and storing book data)
 library_file_path = os.path.join(os.path.dirname(__file__), "user_library.json")
 
 
 def read_library_from_file():
+    """Read library data from JSON file."""
     if not os.path.exists(library_file_path):
-        with open(
-            library_file_path, "w"
-        ) as file:  # "w" tryb zapisu pliku (czyli tworzenie pliku "user_library.json")
+        with open(library_file_path, "w") as file:
             json.dump([], file)
         return []
-    with open(
-        library_file_path, "r"
-    ) as file:  # "r" tryb odczytu z pliku (czyli wyświetlenie zawartości pliku "user_library.json")
+    with open(library_file_path, "r") as file:
         return json.load(file)
 
 
@@ -75,15 +72,17 @@ library = read_library_from_file()
 
 
 def save_to_file():
+    """Save current library data to JSON file."""
     with open(library_file_path, "w") as file:
         json.dump(library, file)
     confirm_label = ttk.Label(root, text="Changes saved successfully!")
     confirm_label.pack(pady=10)
-    root.after(2000, confirm_label.destroy)  # Remove the confirmation message after
+    root.after(2000, confirm_label.destroy)
 
 
-# ===== Add Book Functions =====
+# ===== Book Operations Functions =====
 def add_book():
+    """Add a new book to the library."""
     add_book_message_label.config(text="")
 
     author = entry_author.get().strip()
@@ -109,8 +108,6 @@ def add_book():
         )
         return
 
-    new_book = {"author": author, "title": title, "year": year}
-
     library.append(new_book)
     save_to_file()
     clear_add_book_form()
@@ -118,9 +115,8 @@ def add_book():
     add_book_message_label.config(text="You can add another book or return to menu.")
 
 
-# ===== Search Book Functions =====
 def search_books():
-
+    """Search for books by title or author."""
     searched_phrase = entry_searched_phrase.get().strip()
 
     if not searched_phrase:
@@ -130,7 +126,6 @@ def search_books():
         return
 
     search_matches = []
-
     for book in library:
         if (
             searched_phrase.lower() in book["title"].lower()
@@ -149,8 +144,8 @@ def search_books():
     clear_search_form()
 
 
-# ===== Display Library =====
 def display_full_library():
+    """Display all books in the library."""
     library = read_library_from_file()
 
     for widget in display_library_frame.winfo_children():
@@ -164,8 +159,8 @@ def display_full_library():
     display_books_in_frame(tree_frame_library, library)
 
 
-# ===== Delete Book Functions =====
 def delete_book():
+    """Delete selected books from the library."""
     global library
     if not library:
         display_books_in_frame(tree_frame_delete, library, selectmode="extended")
@@ -209,7 +204,8 @@ def delete_book():
     display_books_in_frame(tree_frame_search, library)
 
 
-def display_updated_library():  # repared this function to load updated library in tree views
+def display_updated_library():
+    """Refresh the library display in all views."""
     global library
     library = read_library_from_file()
 
@@ -223,8 +219,9 @@ def display_updated_library():  # repared this function to load updated library 
         display_books_in_frame(tree_frame_search, library)
 
 
-# ===== GUI Setup =====
+# ===== GUI Building =====
 def build_menu_frame():
+    """Build the main menu frame with navigation buttons."""
     message_label.config(text="Welcome to your virtual library!")
     message_label.pack(pady=10)
 
@@ -267,6 +264,7 @@ def build_menu_frame():
 
 
 def build_add_book_frame():
+    """Build the frame for adding a new book."""
     global add_book_message_label
     global entry_author, entry_title, entry_year
 
@@ -304,6 +302,7 @@ def build_add_book_frame():
 
 
 def build_search_frame():
+    """Build the frame for searching books."""
     global entry_searched_phrase, search_book_label, tree_frame_search
 
     search_book_label = ttk.Label(
@@ -332,6 +331,7 @@ def build_search_frame():
 
 
 def build_display_library_frame():
+    """Build the frame to display the full library."""
     global tree_frame_library
 
     full_library_label = ttk.Label(
@@ -351,10 +351,11 @@ def build_display_library_frame():
 
 
 def build_delete_frame():
+    """Build the frame for deleting books."""
     global tree_frame_delete, delete_book_label
     global library
 
-    library = read_library_from_file()  # added library here
+    library = read_library_from_file()
 
     for widget in delete_book_frame.winfo_children():
         widget.destroy()
@@ -381,6 +382,7 @@ def build_delete_frame():
 
 
 def display_books_in_frame(frame, books, selectmode="browse"):
+    """Display a list of books in a Treeview widget within the given frame."""
     global tree
 
     for widget in frame.winfo_children():
@@ -428,15 +430,18 @@ def display_books_in_frame(frame, books, selectmode="browse"):
 
 
 def clear_add_book_form():
+    """Clear the input fields in the add book form."""
     entry_author.delete(0, END)
     entry_title.delete(0, END)
     entry_year.delete(0, END)
 
 
 def clear_search_form():
+    """Clear the search input field."""
     entry_searched_phrase.delete(0, END)
 
 
+# ===== Initialize and run the GUI =====
 build_menu_frame()
 build_add_book_frame()
 build_search_frame()
