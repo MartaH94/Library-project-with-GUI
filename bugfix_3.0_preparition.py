@@ -95,11 +95,19 @@ def add_book():
         return
 
     if not year.isdigit() or len(year) != 4:
+        year = int(year)
         add_book_message_label.config(
             text="Year of release must be a 4-digit number. Try again"
         )
         return
-        # !!! dodać walidację zakresu dat, żeby nie było np 0000
+
+    if 1100 <= int(year) <= 2100:
+        new_book = {"author": author, "title": title, "year": year}
+    else:
+        add_book_message_label.config(
+            text="The entered number must be a real publication year. Try again."
+        )
+        return
 
     new_book = {"author": author, "title": title, "year": year}
 
